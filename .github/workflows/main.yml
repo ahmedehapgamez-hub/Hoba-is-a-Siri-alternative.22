@@ -1,0 +1,57 @@
+name: Build Nora Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Install dependencies and initialize Capacitor Android
+        run: |
+          npm install
+          npx cap add android --app-id com.nora.assistant --app-name "نورا للمساعدة" || npx cap add android
+          npx cap sync android
+
+      - name: Apply native background service and bridge files
+        run: |
+          PKG_DIR="android/app/src/main/java/com/nora/assistant"
+          mkdir -p "$PKG_DIR"
+          if [ -f "android-native/AndroidManifest.xml" ]; then
+            cp android-native/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          fi
+          if [ -f "android-native/MainActivity.java" ]; then
+            cp android-native/MainActivity.java "$PKG_DIR/MainActivity.java"
+          fi
+          if [ -f "android-native/NoraBackgroundService.java" ]; then
+            cp android-native/NoraBackgroundService.java "$PKG_DIR/NoraBackgroundService.java"
+          fi
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nora-assistant-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
