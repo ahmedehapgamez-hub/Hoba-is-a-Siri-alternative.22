@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>نورا — مساعد أندرويد الصوتي</title>
+  <style>
+    :root {
+      --bg: #090c15;
+      --card: #121726;
+      --card-2: #192035;
+      --accent: #7c3aed;
+      --accent-2: #06b6d4;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Tahoma, Arial, sans-serif; }
+    body {
+      background: radial-gradient(circle at top, #1b1338 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 14px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      border-radius: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .orb {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center; font-weight: bold; font-size: 18px;
+      box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+    }
+    .orb.listening { animation: pulse 1.3s infinite; }
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
+      70% { transform: scale(1.08); box-shadow: 0 0 0 16px rgba(6, 182, 212, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+    }
+    .status-pill {
+      font-size: 12px; padding: 6px 12px; border-radius: 999px;
+      background: var(--card-2); color: var(--accent-2); border: 1px solid var(--border);
+    }
+    .bg-banner {
+      background: linear-gradient(90deg, rgba(124,58,237,0.18), rgba(6,182,212,0.18));
+      border: 1px solid rgba(124,58,237,0.35);
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .bg-banner p { font-size: 13px; color: #e2e8f0; line-height: 1.5; }
+    .btn {
+      border: none; border-radius: 12px; padding: 10px 14px;
+      font-size: 13px; font-weight: 600; cursor: pointer; color: #fff;
+      background: linear-gradient(135deg, var(--accent), #5b21b6);
+      white-space: nowrap;
+    }
+    .btn.secondary { background: var(--card-2); border: 1px solid var(--border); color: var(--text); }
+    .btn.danger { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.45); color: #fca5a5; }
+    .chat-box {
+      flex: 1; min-height: 220px; max-height: 360px; overflow-y: auto;
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+      padding: 14px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .msg {
+      max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.6;
+    }
+    .msg.assistant { background: var(--card-2); align-self: flex-start; border-bottom-right-radius: 4px; }
+    .msg.user { background: linear-gradient(135deg, var(--accent), #4f46e5); align-self: flex-end; border-bottom-left-radius: 4px; }
+    .controls-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .tile {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 12px 10px; text-align: center; cursor: pointer; transition: 0.2s;
+    }
+    .tile.active { border-color: var(--accent-2); background: rgba(6, 182, 212, 0.12); }
+    .tile span { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .input-row {
+      display: flex; gap: 8px; background: var(--card);
+      border: 1px solid var(--border); padding: 8px; border-radius: 16px;
+    }
+    .input-row input {
+      flex: 1; background: transparent; border: none; color: var(--text);
+      font-size: 14px; padding: 6px 10px; outline: none;
+    }
+    .mic-btn {
+      width: 44px; height: 44px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: #fff; font-size: 18px; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <div id="orb" class="orb">ن</div>
+      <div>
+        <div style="font-weight: 700; font-size: 16px;">نورا — مساعد أندرويد</div>
+        <div id="substatus" style="font-size: 12px; color: var(--muted);">جاهزة للاستماع والأوامر</div>
+      </div>
+    </div>
+    <div id="modeBadge" class="status-pill">وضع التطبيق</div>
+  </div>
+
+  <div class="bg-banner">
+    <p><strong>خدمة الخلفية:</strong> تبقّي نورا نشطة في شريط الإشعارات وتستمع لكلمة «يا نورا» حتى خارج التطبيق.</p>
+    <div style="display:flex; gap:6px;">
+      <button id="startBgBtn" class="btn" onclick="toggleBackgroundService(true)">تشغيل بالخلفية</button>
+      <button id="stopBgBtn" class="btn danger" onclick="toggleBackgroundService(false)" style="display:none;">إيقاف</button>
+    </div>
+  </div>
+
+  <div id="chatBox" class="chat-box">
+    <div class="msg assistant">أهلاً بك! أنا نورا. يمكنك التحدث صوتياً أو كتابة أمر مثل: «افتح يوتيوب»، «شغّل الفلاش»، «كم الساعة»، أو تفعيل خدمة الخلفية للأندرويد.</div>
+  </div>
+
+  <div class="controls-grid">
+    <div id="tileFlash" class="tile" onclick="toggleFlash()">⚡ <span>الفلاش</span></div>
+    <div id="tileWifi" class="tile" onclick="openSystemPanel('wifi')">📶 <span>الواي فاي</span></div>
+    <div id="tileBt" class="tile" onclick="openSystemPanel('bluetooth')">🔵 <span>البلوتوث</span></div>
+  </div>
+
+  <div class="input-row">
+    <input id="cmdInput" type="text" placeholder="اكتب أمراً أو قل: يا نورا..." onkeydown="if(event.key==='Enter') handleCommand(this.value)" />
+    <button class="btn" onclick="handleCommand(document.getElementById('cmdInput').value)">إرسال</button>
+    <button id="micBtn" class="mic-btn" onclick="startVoiceRecognition()" title="تحدث الآن">🎤</button>
+  </div>
+
+  <script src="js/nora-bridge.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "nora-android-assistant",
+  "version": "1.0.0",
+  "description": "Nora Arabic Voice Assistant wrapped with Capacitor for Android background service",
+  "scripts": {
+    "cap:init": "npx cap init \"نورا للمساعدة\" com.nora.assistant --web-dir=www",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/device": "^6.0.0",
+    "@capacitor/local-notifications": "^6.0.0"
+  }
+}
